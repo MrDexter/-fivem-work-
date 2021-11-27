@@ -33,6 +33,16 @@ end)
 --     SendNUIMessage({type = "refresh_accounts"})
 -- end)
 
+RegisterCommand('openAccount', function()
+    TriggerEvent('openAccount')
+end)
+
+
+RegisterNetEvent('openAccount')
+AddEventHandler('openAccount', function()
+    SendNUIMessage(({type = 'openNewAccount'}))
+end)
+
 function ToggleUI()
     bMenuOpen = not bMenuOpen
 

@@ -161,6 +161,39 @@
 		   </div>
 		 </div>
 		<!-- End Notifications -->
+		<!-- Create Account Modal -->
+		<div class="modal fade" id="CreateAccountModal" role="dialog" data-backdrop="true" data-keyboard="true">
+			<div class="modal-dialog  modal-dialog-centered">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title">Open Account</h5>
+						<button type="button" class="btn btn-primary" data-dismiss="modal" aria-label="Close">
+							<span aria-hidden="true">&times;</span>
+						</button>
+					</div>
+					<div class="modal-body">
+						<div class="form-group">                    
+							<label for="type">Account Type</label>
+							<select name="type" id="type">
+								<option value="shared">Sharred Account</option>
+								<option value="business">Business Account</option>
+							</select>
+							
+							<label for="secondaryOption">Account linked to:</label>
+							<select name="type" id="secondaryOption">
+								<option value="shared">Sharred Account</option>
+								<option value="business">Business Account</option>
+							</select>
+
+						</div>
+					</div>
+					<div class="modal-footer">
+						<button type="button" onClick="confirmAccount()" class="btn btn-primary">Confirm</button>
+						<button id="account_Cancel" type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+					</div>
+				</div>
+			</div>
+		</div>
 
 		<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
         <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>

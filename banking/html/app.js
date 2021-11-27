@@ -274,6 +274,38 @@ function confirmTransfer()
     }));
 }
 
+function openNewAccount()
+{
+    // $('#CreateAccountModal').modal().show();
+    $("#CreateAccountModal").modal('toggle');
+}
+
+
+function confirmAccount()
+{
+
+    console.log("Here")
+
+    //if (!curAccount)
+        //curAccount = "personal";
+
+    // let amount = $("#transferAmount").val();
+    // let tTarget = $("#transferID").val();
+    // if(!amount || amount <= 0)
+    //     return;
+    
+    // let note = $("#transferNote").val();
+    // $("#TransferModal").modal().hide();
+    // $('.modal-backdrop').remove() // removes the grey overlay.
+
+    // $.post("https://" + folder_name + "/TransferCash", JSON.stringify({
+    //     account: curAccount,
+    //     amount: amount,
+    //     target: tTarget,
+    //     note: note,
+    // }));
+}
+
 function confirmRemove(identifier, name)
 {
     if ($("#editAccountModal").is(':visible'))
@@ -313,6 +345,12 @@ Listeners["OpenUI"] = function(data)
 {
     let name = data.name;
     OpenATM(data.accounts, data.transactions, name);
+}
+
+Listeners["openNewAccount"] = function(data)
+{
+    let name = data.name;
+    openNewAccount();
 }
 
 Listeners["edit_account"] = function(data)
