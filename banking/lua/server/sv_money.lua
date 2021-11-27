@@ -34,7 +34,7 @@ AddEventHandler('qb-banking:server:Deposit', function(account, amount, note, fSt
             Player.removeMoney(deposit)
         end
         RefreshTransactions(src)
-        TriggerEvent("qb-banking:server:AddToMoneyLog", src, account.type, amount, "deposit", null, account.id, (note ~= "" and note or ""))
+        TriggerEvent("qb-banking:server:AddToMoneyLog", src, account.type, amount, "deposit", null, account.id, (note or ""))
 end)
 
 
@@ -69,7 +69,7 @@ AddEventHandler('qb-banking:server:Withdraw', function(account, amount, note, fS
             })
             Player.addMoney(withdraw)
         end
-        TriggerEvent("qb-banking:server:AddToMoneyLog", src, account.type, -amount, "withdraw", account.id, null, (note ~= "" and note or "Withdrew $"..format_int(amount).." cash."))
+        TriggerEvent("qb-banking:server:AddToMoneyLog", src, account.type, -amount, "withdraw", account.id, null, (note or ""))
         RefreshTransactions(src)
     else
         TriggerClientEvent("qb-banking:client:Notify", src, "error", "You can't afford this!") 
@@ -128,8 +128,8 @@ AddEventHandler('qb-banking:server:Transfer', function(target, account, amount, 
                             reciverData.removeAccountMoney('bank', amount)
                         end
                         --                                             User   account type  money             Leaving account, going to
-                        TriggerEvent("qb-banking:server:AddToMoneyLog", src, receiver.type, amount, "transfer", sender.id, receiver.id, (note ~= "" and note or "No Comments"))
-                        TriggerEvent("qb-banking:server:AddToMoneyLog", src, sender.type, -amount, "transfer", sender.id, receiver.id, (note ~= "" and note or "No Comments"))
+                        TriggerEvent("qb-banking:server:AddToMoneyLog", src, sender.type, -amount, "transfer", sender.id, receiver.id, (note or ""))
+                        TriggerEvent("qb-banking:server:AddToMoneyLog", src, receiver.type, amount, "transfer", sender.id, receiver.id, (note or ""))
                     end
                 end)
             else      
