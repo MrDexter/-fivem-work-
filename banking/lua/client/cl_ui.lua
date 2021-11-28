@@ -33,7 +33,7 @@ end)
 --     SendNUIMessage({type = "refresh_accounts"})
 -- end)
 
-RegisterCommand('openAccount', function()
+RegisterCommand('openaccount', function()
     TriggerEvent('openAccount')
 end)
 
@@ -48,7 +48,8 @@ AddEventHandler('openAccount', function()
         ply = PlayerPedId()
         plyCoords = GetEntityCoords(ply)
         Player = ESX.GetPlayerData()
-        ESX.TriggerServerCallback("banking:businessAccounts", function(businessAccounts)
+        closePlayers = ESX.Game.GetPlayersInArea(plyCoords, 5.0)
+        ESX.TriggerServerCallback("banking:openAccountCB", function(businessAccounts, nearbyPlayers)
             for k,v in pairs(Player.businesses) do
                 if not isinTable(v.name, businessAccounts) then -- Account doesn't already exist
                     if isinTable('business_mng_admin', json.decode(v.grade_permissions)) then -- Permission to manage bank account
@@ -59,11 +60,10 @@ AddEventHandler('openAccount', function()
                     end
                 end
             end
-            closePlayers = ESX.Game.GetPlayersInArea(plyCoords, 25.0)
-            print(json.encode(closePlayers))
+            
             SetNuiFocus(true, true)
-            SendNUIMessage(({type = 'openNewAccount', player = closePlayers, businesses = playerBusinesses}))
-        end)
+            SendNUIMessage(({type = 'openNewAccount', players = nearbyPlayers, businesses = playerBusinesses}))
+        end, closePlayers)
     end
 end)
 
@@ -138,6 +138,12 @@ RegisterNUICallback("OpenAccount", function(data, cb)
     ToggleUI()
 end)
 
+RegisterNUICallback("EditAccount", function(data, cb)
+    data = data.data
+    ESX.TriggerServerCallback("banking:EditAccounts", function(currentSharers, closePlayers)
+
+    end, data[1])
+end)
 
 --// Net Events \\--
 RegisterNetEvent("qb-banking:client:Notify")

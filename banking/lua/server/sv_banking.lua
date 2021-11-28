@@ -58,6 +58,10 @@ ESX.RegisterServerCallback("qb-banking:server:GetBankData", function(source, cb)
                 if isinTable('business_mng_admin', json.decode(playerBusinesses[v.name].grade_permissions)) then
                     current = playerBusinesses[v.name]
                 end
+            elseif v.type == 'shared' then
+                if v.name == Player.identifier or isinTable(Player.identifier, json.decode(v.shared)) then
+                    current = {label = 'Shared Account'}
+                end
             else
                 return
             end
@@ -173,7 +177,13 @@ AddEventHandler('banking:OpenAccount', function(type, secondaryOption)
     xPlayer = ESX.GetPlayerFromId(source)
     playerBusinesses = xPlayer.getBusinesses()
     if type == 'shared' then
-        print("shared")
+        name = {xPlayer.getIdentifier, }
+        MySQL.Async.execute("INSERT INTO society (name, money, type, shared) VALUES (@name, @money, @type, @shared)", {
+            ['@name'] = xPlayer.identifier,
+            ['@money'] = 0,
+            ['@type'] = type,
+            ['@shared'] = json.encode({secondaryOption})
+        })
     elseif type == 'business' then
         gradePermissions = json.decode(playerBusinesses[secondaryOption].grade_permissions)
         if isinTable('business_mng_admin', gradePermissions) then
@@ -186,11 +196,28 @@ AddEventHandler('banking:OpenAccount', function(type, secondaryOption)
     end
 end)
 
-ESX.RegisterServerCallback('banking:businessAccounts', function(source, cb)
+ESX.RegisterServerCallback('banking:openAccountCB', function(source, cb, closePlayers)
+    -- Businesses
     local businessAccounts = {}
     local pulledAccounts = MySQL.Sync.fetchAll("SELECT name FROM society where type = 'business'")
     for k,v in pairs(pulledAccounts) do
         table.insert(businessAccounts, v.name)
     end
-    cb(businessAccounts)
+    -- Shared Accounts
+    local nearbyPlayers = {}
+    for k,v in pairs(closePlayers) do
+        Player = ESX.GetPlayerFromId(v)
+        if Player then
+            table.insert(nearbyPlayers, {
+                name = Playr.getName(), 
+                id = Player.getIdentifier()
+            })
+        end
+        nearbyPlayers = {{name = 'Josh Smith', id = 'steam:110000144feb051' }}
+    end
+    cb(businessAccounts, nearbyPlayers)
+end)
+
+ESX.RegisterServerCallback('banking:EditAccounts', function(source, cb, account_id)
+
 end)

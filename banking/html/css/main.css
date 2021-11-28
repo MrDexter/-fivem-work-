@@ -192,3 +192,10 @@ p {
     vertical-align: middle; 
     display: inline-block;
 }
+.account_settings {
+    transition:color .5s ease-in-out;
+    font-size: 0.75em
+}
+.account_settings:hover {
+    color:rgb(0, 0, 0)
+}

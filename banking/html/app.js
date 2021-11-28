@@ -40,6 +40,7 @@ var lang = [];
 lang["personal"] = "Personal Account";
 lang["business"] = "Buisness Account";
 lang["organisation"] = "Government Account";
+lang["shared"] = "Shared Account";
 lang["gang"] = "Group Account";
 lang["deposit"] = "Deposit";
 lang["withdraw"] = "Withdrawal";
@@ -50,6 +51,7 @@ relang["Personal Account"] = "personal";
 relang["Buisness Account"] = "business";
 relang["Government Account"] = "organisation";
 relang["Group Account"] = "gang";
+relang["Shared Account"] = "shared";
 
 function AddAccount(account_name, account_type, bal, ply_Name, account_id)
 {
@@ -70,11 +72,12 @@ function AddAccount(account_name, account_type, bal, ply_Name, account_id)
             <div class='account'>\
             <div class='row'>\
                 <div class='col'>\
-                    <h5 class='card-title note'>" + account_name + (relang[account_type] === "personal" && " </i>" || "") + "</h5>\
+                    <h5 class='card-title note'>" + account_name + (relang[account_type] === "personal" && " </i>" || "") + "\
+                    "+((relang[account_type] === "shared" || relang[account_type] === "business") && "<i OnClick='EditAccount(\"" + [account_id, relang[account_type]] + "\")' class='fa fa-cog account_settings'></i>" || "")+"</h5>\
                 </div>\
                 <div class='col-auto'>\
-                 <p class='header-title'><span class='badge bg-secondary'>Account ID:  <span class='badge bg-dark text-light'>" + account_id + "</span></span></p>\
-                 </div>\
+                    <p class='header-title'><span class='badge bg-secondary'>Account ID:  <span class='badge bg-dark text-light'>" + account_id + "</span></span></p>\
+                </div>\
             </div>\
                 <div class='row'>\
                     <div class='col mb-1'>\
@@ -203,7 +206,7 @@ function OpenATM(data, transactions, name)
         for (var i = 0; i < tbl.length; i++)
         {
             let tTbl = tbl[i];
-            AddAccount((tTbl.type === "business" && tTbl.name || tTbl.type === "organisation" && tTbl.name || "Personal Account"), (lang[tTbl.type] && lang[tTbl.type] || tTbl.type), tTbl.amount, name, tTbl.id);
+            AddAccount((tTbl.type === "business" && tTbl.name || tTbl.type === "organisation" && tTbl.name || tTbl.type === "shared" && tTbl.name || "Personal Account"), (lang[tTbl.type] && lang[tTbl.type] || tTbl.type), tTbl.amount, name, tTbl.id);
         }
     }
 
@@ -295,8 +298,7 @@ function fetchSecondaryOption() {
 		$('#secondaryOption').append('<option value="">Select Option</option>')
         // var people = ['Dexter', 'James', 'Tom']
         for (let i in secondaryOptionPlayers) {
-			let selected = secondaryOptionPlayers[i]
-			$('#secondaryOption').append('<option value="' + i + '">' + secondaryOptionPlayers[i] + '</option>')
+			$('#secondaryOption').append('<option value="' + secondaryOptionPlayers[i].id + '">' + secondaryOptionPlayers[i].name + '</option>')
 		}
     }
     else 
@@ -346,12 +348,9 @@ function confirmRemove(identifier, name)
     }));
 }
 
-function EditAccount(clss)
+function EditAccount(data)
 {
-    if (clss != "personal")
-        return TropixNotification("Company accounts have no settings yet, sorry!", "error")
-
-    $.post("https://" + folder_name + "/EditAccount", JSON.stringify({}))
+    $.post("https://" + folder_name + "/EditAccount", JSON.stringify({data}))
 }
 
 function TropixNotification(msg, typ)
@@ -378,7 +377,7 @@ Listeners["OpenUI"] = function(data)
 
 Listeners["openNewAccount"] = function(data)
 {
-    secondaryOptionPlayers = data.closePlayers;
+    secondaryOptionPlayers = data.players;
     secondaryOptionBusinesses = data.businesses;
     openNewAccount();
 }
