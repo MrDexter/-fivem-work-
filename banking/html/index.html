@@ -167,29 +167,29 @@
 				<div class="modal-content">
 					<div class="modal-header">
 						<h5 class="modal-title">Open Account</h5>
-						<button type="button" class="btn btn-primary" data-dismiss="modal" aria-label="Close">
+						<button type="button" class="btn btn-primary" onclick="CloseUIPls()" aria-label="Close">
 							<span aria-hidden="true">&times;</span>
 						</button>
 					</div>
 					<div class="modal-body">
 						<div class="form-group">                    
-							<label for="type">Account Type</label>
-							<select name="type" id="type">
-								<option value="shared">Sharred Account</option>
+							<div class="modal-title"><label for="openType">Account Type</label></div>
+							<select name="openType" id="openType" class="form-control ng-pristine ng-untouched ng-valid ng-not-empty" onchange="fetchSecondaryOption()">
+								<option value="" selected>Select Option</option>
+								<option value="shared">Shared Account</option>
 								<option value="business">Business Account</option>
 							</select>
 							
-							<label for="secondaryOption">Account linked to:</label>
-							<select name="type" id="secondaryOption">
-								<option value="shared">Sharred Account</option>
-								<option value="business">Business Account</option>
+							<div class="modal-title"><label for="secondaryOption">Account linked to:</label></div>
+							<select name="secondaryOption" id="secondaryOption" class="form-control ng-pristine ng-untouched ng-valid ng-not-empty">
+								<option value="">Select Option</option>
 							</select>
-
+                            <small id="openAccountHelp" class="form-text text-warning">  </small>
 						</div>
 					</div>
 					<div class="modal-footer">
 						<button type="button" onClick="confirmAccount()" class="btn btn-primary">Confirm</button>
-						<button id="account_Cancel" type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+						<button id="account_Cancel" type="button" class="btn btn-secondary" onclick="CloseUIPls()">Cancel</button>
 					</div>
 				</div>
 			</div>

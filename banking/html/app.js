@@ -3,6 +3,8 @@ let CurrentTransactions = [];
 let curAccount = "";
 let folder_name = GetParentResourceName()
 let playerName = "";
+let secondaryOptionPlayers = "";
+let secondaryOptionBusinesses = "";
 
 function UpdateAccount(divId, bal)
 {
@@ -24,6 +26,9 @@ function ResetModals(type)
     $("#transferNote").val("");
     // Transfer ID
     $("#transferID").val();
+    // Open Account
+    $("#openType").val();
+    $("#secondaryOption").val();
 
     curAccount = type;
 
@@ -209,7 +214,7 @@ function OpenATM(data, transactions, name)
         for (var i = 0; i < transactions.length; i++)
         {
             let tTbl = transactions[i];
-            AddTransaction(tTbl.id, tTbl.account, tTbl.amount, tTbl.date, tTbl.message, tTbl.trans_type, tTbl.trans_name || "Unknown", name, tTbl.account_name);
+            AddTransaction(tTbl.id, tTbl.account, tTbl.amount, tTbl.date, tTbl.message, tTbl.trans_type, tTbl.trans_name || "Unknown", name, tTbl.account_name || "");
         }
     }
 
@@ -280,30 +285,54 @@ function openNewAccount()
     $("#CreateAccountModal").modal('toggle');
 }
 
+function fetchSecondaryOption() {
+	var x = document.getElementById("openType").value;
+	if (x === 'shared')
+    {
+        $('#openAccountHelp').empty()
+        $('#openAccountHelp').append('You require a second individual to be with you to continue!')
+        $('#secondaryOption').empty()
+		$('#secondaryOption').append('<option value="">Select Option</option>')
+        // var people = ['Dexter', 'James', 'Tom']
+        for (let i in secondaryOptionPlayers) {
+			let selected = secondaryOptionPlayers[i]
+			$('#secondaryOption').append('<option value="' + i + '">' + secondaryOptionPlayers[i] + '</option>')
+		}
+    }
+    else 
+    {
+        $('#openAccountHelp').empty()
+        $('#openAccountHelp').append('You require the Bank Management Permission to continue!')
+        $('#secondaryOption').empty()
+		$('#secondaryOption').append('<option value="">Select Option</option>')
+        // var businesses = ['Morrisons', 'Diamond Casino', 'Luxury Auto']
+        for (let i in secondaryOptionBusinesses) {
+			$('#secondaryOption').append('<option value="' + secondaryOptionBusinesses[i].id + '">' + secondaryOptionBusinesses[i].name + '</option>')
+		}
+    }
+}
 
 function confirmAccount()
 {
 
-    console.log("Here")
 
-    //if (!curAccount)
-        //curAccount = "personal";
+    let accountType = document.getElementById("openType").value;
+    let secondaryOption = document.getElementById("secondaryOption").value;
+    console.log(accountType)
 
-    // let amount = $("#transferAmount").val();
-    // let tTarget = $("#transferID").val();
-    // if(!amount || amount <= 0)
-    //     return;
+    if (!accountType || !secondaryOption)
+        return;
+
+    $("#CreateAccountModal").modal().hide();
+    $('.modal-backdrop').remove() // removes the grey overlay.
     
-    // let note = $("#transferNote").val();
-    // $("#TransferModal").modal().hide();
-    // $('.modal-backdrop').remove() // removes the grey overlay.
 
-    // $.post("https://" + folder_name + "/TransferCash", JSON.stringify({
-    //     account: curAccount,
-    //     amount: amount,
-    //     target: tTarget,
-    //     note: note,
-    // }));
+    $.post("https://" + folder_name + "/OpenAccount", JSON.stringify({
+        type: accountType,
+        secondaryOption: secondaryOption,
+    }));
+
+
 }
 
 function confirmRemove(identifier, name)
@@ -349,7 +378,8 @@ Listeners["OpenUI"] = function(data)
 
 Listeners["openNewAccount"] = function(data)
 {
-    let name = data.name;
+    secondaryOptionPlayers = data.closePlayers;
+    secondaryOptionBusinesses = data.businesses;
     openNewAccount();
 }
 
@@ -395,6 +425,7 @@ Listeners["refresh_accounts"] = function() {
     }
 }
 
+
 Listeners["update_transactions"] = function(data)
 {
     let transactions = JSON.parse(data.transactions);
@@ -402,7 +433,7 @@ Listeners["update_transactions"] = function(data)
     for (var i = 0; i < transactions.length; i++)
     {
         let tTbl = transactions[i];
-        AddTransaction(tTbl.trans_id, tTbl.account, tTbl.amount, tTbl.date, tTbl.message, tTbl.trans_type, tTbl.trans_name || "Unknown", playerName);
+        AddTransaction(tTbl.id, tTbl.account, tTbl.amount, tTbl.date, tTbl.message, tTbl.trans_type, tTbl.trans_name || "Unknown", name, tTbl.account_name || "");
     }
 }
 
@@ -457,9 +488,11 @@ $(function()
 
             if ($("#TransferModal").is(':visible'))
                 $("#TransferModal").modal().hide();
+            if ($("#CreateAccountModal").is(':visible'))
+                $("#CreateAccountModal").modal('toggle');
 
             $('.modal-backdrop').remove()
-
+            ResetModals()
             $("#bankui").fadeTo(10, 0, () => $.post("https://" + folder_name + "/CloseATM", JSON.stringify({})));
         }
     }
@@ -472,7 +505,9 @@ function CloseUIPls()
         $("#editAccountModal").modal('toggle');
     if ($("#notificationModal").is(':visible'))
         $("#notificationModal").modal('toggle');
-
+    if ($("#CreateAccountModal").is(':visible'))
+        $("#CreateAccountModal").modal('toggle');
+        ResetModals()
     $("#bankui").fadeTo(10, 0, () => $.post("https://" + folder_name + "/CloseATM", JSON.stringify({})));
 }
 

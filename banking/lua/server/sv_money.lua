@@ -33,7 +33,7 @@ AddEventHandler('qb-banking:server:Deposit', function(account, amount, note, fSt
             })
             Player.removeMoney(deposit)
         end
-        RefreshTransactions(src)
+        RefreshTransactions()
         TriggerEvent("qb-banking:server:AddToMoneyLog", src, account.type, amount, "deposit", null, account.id, (note or ""))
 end)
 
@@ -70,14 +70,14 @@ AddEventHandler('qb-banking:server:Withdraw', function(account, amount, note, fS
             Player.addMoney(withdraw)
         end
         TriggerEvent("qb-banking:server:AddToMoneyLog", src, account.type, -amount, "withdraw", account.id, null, (note or ""))
-        RefreshTransactions(src)
+        RefreshTransactions()
     else
         TriggerClientEvent("qb-banking:client:Notify", src, "error", "You can't afford this!") 
     end
 end)
 
 RegisterServerEvent('qb-banking:server:Transfer')
-AddEventHandler('qb-banking:server:Transfer', function(target, account, amount, note, fSteamID)
+AddEventHandler('qb-banking:server:Transfer', function(target, account, amount, note, fSteamID) -- Target = target bank id - account = leaving bank id
     local src = source
     local Player = ESX.GetPlayerFromId(src)
 
@@ -88,8 +88,7 @@ AddEventHandler('qb-banking:server:Transfer', function(target, account, amount, 
 
     target = tonumber(target)
     amount = tonumber(amount)
-    local targetPly = ESX.GetPlayerFromId(src)
-
+    
     if (not amount or amount <= 0) then
         return
     end
@@ -125,7 +124,8 @@ AddEventHandler('qb-banking:server:Transfer', function(target, account, amount, 
                         if sender.type == 'personal' then
                             Player.removeAccountMoney('bank', amount)
                         elseif receiver.type == 'personal' then
-                            reciverData.removeAccountMoney('bank', amount)
+                            receiverData = ESX.GetPlayerFromIdentifier(receiver.name)
+                            receiverData.addAccountMoney('bank', amount)
                         end
                         --                                             User   account type  money             Leaving account, going to
                         TriggerEvent("qb-banking:server:AddToMoneyLog", src, sender.type, -amount, "transfer", sender.id, receiver.id, (note or ""))

@@ -45,3 +45,25 @@ function PlayerIdentifier(type, id)
 
     return false
 end
+
+
+function isinTable(string, Table)
+	if Table ~= nil then
+		if string ~= nil then
+				for k, v in pairs (Table) do
+					if v == string then
+                        -- print('found')
+						return true -- found
+					end
+				end
+                -- print('Not found')
+				return false -- fallthrough the loo
+		else
+            -- print('no string')
+			return false -- No string
+		end
+	else
+        -- print('no table')
+		return false -- No table
+	end
+end

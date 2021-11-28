@@ -3,6 +3,7 @@
 **Businesses** - Create and manage player businesses
 
   ToDo: 
+    Fix dropdowns after Businesses ESX Implementation
     Seperate Create business from main managemenu menu (Currently disabled) - Register / create business at city hall?
     Finalise permissions setup
       Leadership
@@ -13,6 +14,7 @@
         See employees
         Access anything permission allows
         See their employment info (Rank, permissions, paycheck)
+    Set up Paycheck support, Implement with banking system, Transaction log 
 
   
 **Banking** - Advanced banking system w/ support for Business, Personal, Organisation (Police, NHS) accounts (Shared account soon)
@@ -24,7 +26,7 @@
   
 **Jobs**
 
-  Binmane - Working bin man job, sign on, head to designated area and collect rubbish from bins.
+  Binman - Working bin man job, sign on, head to designated area and collect rubbish from bins.
   
   To do:
     Bug testing
@@ -36,6 +38,7 @@
 
   To do:
     bug testing
+    Multi person testing
     
     
 **nocarjack** - Random idea to steal cars. point gun at driver chance they floor it or get out with hands up

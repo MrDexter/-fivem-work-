@@ -1,5 +1,5 @@
 bMenuOpen = false 
-
+ESX = nil
 TriggerEvent('esx:getSharedObject', function(obj) ESX = obj end)
 local isLoggedIn = false
 PlayerJob = {}
@@ -40,7 +40,31 @@ end)
 
 RegisterNetEvent('openAccount')
 AddEventHandler('openAccount', function()
-    SendNUIMessage(({type = 'openNewAccount'}))
+    bMenuOpen = not bMenuOpen
+    if not bMenuOpen then
+        SetNuiFocus(false, false)
+    else
+        playerBusinesses = {}
+        ply = PlayerPedId()
+        plyCoords = GetEntityCoords(ply)
+        Player = ESX.GetPlayerData()
+        ESX.TriggerServerCallback("banking:businessAccounts", function(businessAccounts)
+            for k,v in pairs(Player.businesses) do
+                if not isinTable(v.name, businessAccounts) then -- Account doesn't already exist
+                    if isinTable('business_mng_admin', json.decode(v.grade_permissions)) then -- Permission to manage bank account
+                        table.insert(playerBusinesses, {
+                            name = v.label,
+                            id = v.name
+                        })
+                    end
+                end
+            end
+            closePlayers = ESX.Game.GetPlayersInArea(plyCoords, 25.0)
+            print(json.encode(closePlayers))
+            SetNuiFocus(true, true)
+            SendNUIMessage(({type = 'openNewAccount', player = closePlayers, businesses = playerBusinesses}))
+        end)
+    end
 end)
 
 function ToggleUI()
@@ -105,6 +129,15 @@ RegisterNUICallback("TransferCash", function(data, cb)
 end)
 
 
+RegisterNUICallback("OpenAccount", function(data, cb)
+    if (not data or not data.type or not data.secondaryOption) then
+        return
+    end
+
+    TriggerServerEvent("banking:OpenAccount", data.type, data.secondaryOption)
+    ToggleUI()
+end)
+
 
 --// Net Events \\--
 RegisterNetEvent("qb-banking:client:Notify")
@@ -115,14 +148,11 @@ AddEventHandler("qb-banking:client:Notify", function(type, msg)
 end)
 
 RegisterNetEvent("qb-banking:client:UpdateTransactions")
-AddEventHandler("qb-banking:client:UpdateTransactions", function(transactions)
+AddEventHandler("qb-banking:client:UpdateTransactions", function()
     if (bMenuOpen) then
-
-        SendNUIMessage({type = 'update_transactions', transactions = json.encode(transactions)})
-
-        ESX.TriggerServerCallback("qb-banking:server:GetBankData", function(data, transactions)
-            local PlayerBanks = json.encode(data)
-            SendNUIMessage({type = "refresh_balances", accounts = PlayerBanks})
+        ESX.TriggerServerCallback("qb-banking:server:GetBankData", function(data, transactions, name)
+            SendNUIMessage({type = "refresh_balances", accounts = json.encode(data)})
+            SendNUIMessage({type = 'update_transactions', transactions = json.encode(transactions)})
         end)
     end
 end)

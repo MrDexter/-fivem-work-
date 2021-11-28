@@ -14,10 +14,7 @@ SimpleBanking.Config["business_ranks"] = { -- what ranks can see the society acc
 
 
 SimpleBanking.Config["business_ranks_overrides"] = {
-    ["mechanic"] = { -- If you want a certain company to use custom job ranks, add them like below. otherwise, it defaults back to business_ranks
-        ["owner"] = true,
-        ["coowner"] = true,
-        ["manager"] = true,
-        ["chief executive"] = true,
+    ["police"] = { -- If you want a certain company to use custom job ranks, add them like below. otherwise, it defaults back to business_ranks
+        ["boss"] = true,
     }
 }
