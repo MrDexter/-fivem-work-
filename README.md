@@ -20,6 +20,7 @@
 **Banking** - Advanced banking system w/ support for Business, Personal, Organisation (Police, NHS) & Shared accounts
 
   Todo:
+    Support for shop transactions, show in transaction log.
     Close Account (Transfer remaining balance, work out how it will work with transaction logs)
     Sort Transactions (By account, money in / out, search?)
     Maybe a way to save bank info with name for easier transfers

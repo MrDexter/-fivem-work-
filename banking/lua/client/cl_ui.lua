@@ -85,7 +85,7 @@ end
 
 RegisterNUICallback("CloseATM", function()
     ToggleUI()
-    TriggerEvent('animations:client:EmoteCommandStart', {"c"})
+    TriggerEvent('dp:playEmote', "c")
 end)
 
 RegisterNUICallback("DepositCash", function(data, cb)

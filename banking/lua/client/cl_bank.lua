@@ -14,6 +14,7 @@ local banks = {
 	{name="Bank", id=108, x=1175.064, y=2706.643, z=38.094}
 }	
 
+local atms = {'prop_atm_01', 'prop_atm_02', 'prop_fleeca_atm', 'prop_atm_03'}
 
 RegisterNetEvent("qb-banking:client:ExtNotify")
 AddEventHandler("qb-banking:client:ExtNotify", function(msg)
@@ -41,40 +42,29 @@ end)
 RegisterNetEvent('qb-banking:client:bank:openUI')
 AddEventHandler('qb-banking:client:bank:openUI', function() -- this one bank from target models
 	if not bMenuOpen then
-		-- TriggerEvent('animations:client:EmoteCommandStart', {"ATM"})
-			ToggleUI()
-
-		-- QBCore.Functions.Progressbar("atm", "Opening Bank", 4500, false, true, {
-		-- 	disableMovement = true,
-		-- 	disableCarMovement = true,
-		-- 	disableMouse = false,
-		-- 	disableCombat = true,
-		-- }, {}, {}, {}, function() -- Done
-		-- end, function()
-		-- 	QBCore.Functions.Notify('Canceled', 'warning')
-		-- 	TriggerEvent('animations:client:EmoteCommandStart', {"c"})
-		-- end)
+		-- TriggerEvent('dp:playEmote', "atm")
+		ToggleUI()
 	end
 end)
 RegisterNetEvent('qb-banking:client:atm:openUI')
 AddEventHandler('qb-banking:client:atm:openUI', function() -- this opens ATM
 	if not bMenuOpen then
-		-- TriggerEvent('animations:client:EmoteCommandStart', {"ATM"})
-			ToggleUI()
-
-		-- QBCore.Functions.Progressbar("atm", "Opening ATM", 4500, false, true, {
-		-- 	disableMovement = true,
-		-- 	disableCarMovement = true,
-		-- 	disableMouse = false,
-		-- 	disableCombat = true,
-		-- }, {}, {}, {}, function() -- Done
-		-- end, function()
-		-- 	QBCore.Functions.Notify('Canceled', 'warning')
-		-- 	TriggerEvent('animations:client:EmoteCommandStart', {"c"})
-		-- end)
+		TriggerEvent('dp:playEmote', "atm")
+		ToggleUI()
 	end
 end)
 
+exports['qtarget']:AddTargetModel(atms, {
+	options = {
+		{
+			event = "qb-banking:client:atm:openUI",
+			icon = "fas fa-box-circle-check",
+			label = "Access ATM",
+			num = 1
+		},
+	},
+	distance = 2
+})
 
 RegisterCommand('atm', function()
 	TriggerEvent('qb-banking:client:atm:openUI')

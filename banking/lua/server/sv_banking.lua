@@ -57,6 +57,7 @@ ESX.RegisterServerCallback("qb-banking:server:GetBankData", function(source, cb)
         local editPermission = false
 
         for k,v in ipairs(result) do
+            local current = nil
             if v.type == 'organisation' then
                 if Job.name == v.name then
                     if (SimpleBanking.Config["business_ranks_overrides"][string.lower(Job.name)] and SimpleBanking.Config["business_ranks_overrides"][string.lower(Job.name)][string.lower(Job.grade_name)]) then

@@ -175,7 +175,7 @@ function AddTransaction(trans_id, account, amount, time, note, why, trans_name, 
                         <p class='header-title'> " + lang[account] +" " + account_name + "</p>\
                     </div>\
                     <div class='col d-flex justify-content-end'>\
-                        <p class='header-title'><span class='badge bg-secondary'>" + lang[why] + ":  <span class='badge bg-dark text-light'> ID: " + trans_id + "</span></span></p>\
+                        <p class='header-title'><span class='badge bg-secondary'>" + lang[why] + " ID:  <span class='badge bg-dark text-light'> " + trans_id + "</span></span></p>\
                     </div>\
                     <hr/>\
                     <div class='col-2'>\
