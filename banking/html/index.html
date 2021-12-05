@@ -24,10 +24,10 @@
 					<div class="col mt-2">
 						<!-- Header -->
 						<div class="row game-header">
-							<div class="col">
-								<!-- <h4 class="header-title">Transaction History</h4> -->
-							<!-- </div>
-							<div class="col d-flex justify-content-end">
+							<!-- <div class="col">
+								<h4 class="header-title">Transaction History</h4> 
+							 </div>-->
+							<!--<div class="col d-flex justify-content-end">
 								<a class="button" href="">
 									<div class="center">
 										<span class="fa-stack fa-2x">
@@ -39,8 +39,8 @@
 										  	<span class="account_balance">Balance: £22,000,000</span>
 										</div>
 									</div>
-								</a>								 -->
-							</div>
+								</a>								
+							</div> -->
 						</div>
 					</div>
 				</div>
@@ -190,6 +190,38 @@
 					<div class="modal-footer">
 						<button type="button" onClick="confirmAccount()" class="btn btn-primary">Confirm</button>
 						<button id="account_Cancel" type="button" class="btn btn-secondary" onclick="CloseUIPls()">Cancel</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- Manage Access Modal -->
+		<div class="modal fade" id="ManageAccessModal" role="dialog" data-backdrop="true" data-keyboard="true">
+			<div class="modal-dialog  modal-dialog-centered">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title">Manage Access</h5>
+						<button type="button" class="btn btn-primary" onclick="CloseOverlay()" aria-label="Close">
+							<span aria-hidden="true">&times;</span>
+						</button>
+					</div>
+					<div class="modal-body">
+						<div class="form-group">                    
+							<div class="modal-title"><label for="openType">Add / Remove Access</label></div>
+							<select name="editType" id="editType" class="form-control ng-pristine ng-untouched ng-valid ng-not-empty" onchange="fetchEditSecondaryOption()">
+								<option value="" selected>Select Option</option>
+								<option value="add">Add Access</option>
+								<option value="remove">Remove Access</option>
+							</select>
+							
+							<div class="modal-title"><label for="editUser">Select User:</label></div>
+							<select name="editUser" id="editUser" class="form-control ng-pristine ng-untouched ng-valid ng-not-empty">
+								<option value="">Select Option</option>
+							</select>
+						</div>
+					</div>
+					<div class="modal-footer">
+						<button type="button" onClick="confirmEdit()" class="btn btn-primary">Confirm</button>
+						<button id="account_Cancel" type="button" class="btn btn-secondary" onclick="CloseOverlay()">Cancel</button>
 					</div>
 				</div>
 			</div>

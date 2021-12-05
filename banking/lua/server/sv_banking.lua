@@ -4,8 +4,9 @@
     es_extended > server > common.lua > line 84 Adding .bankaccoun to ESX table
  ]]
 ESX = nil
+TriggerEvent('esx:getSharedObject', function(obj) ESX = obj end)
 
-while ESX == nil do TriggerEvent('esx:getSharedObject', function(obj) ESX = obj end) end
+
 Accounts = {}
 --businesses = {morrisonsltd = {name = 'morrisonsltd', label = 'Morrisons Ltd', grade = {name = 'Chief Executive'}}, luxuryautoshop = {name = 'luxuryautoshop', label = 'Luxury Auto Shop', grade = {name = 'Chief Executive'}}, minotaurfinance = {name = 'minotaurfinance', label = 'Minotaur Finance', grade = {name = 'Chief Executive'}}, diamondcasino = {name = 'diamondcasino', label = 'Diamond Casino', grade = {name = 'Chief Executive'}}}
 
@@ -22,6 +23,11 @@ MySQL.ready(function ()
 end)
 
 ESX.RegisterServerCallback("qb-banking:server:GetBankData", function(source, cb)
+
+    if not ESX.Jobs[police] then
+        TriggerEvent('esx:getSharedObject', function(obj) ESX = obj end) -- Temp fix for ESX.Jobs / Businesses tables not being created til after event first called
+    end
+
     local accountIDs = {}   
     local src = source
     if not src then return end
@@ -51,12 +57,16 @@ ESX.RegisterServerCallback("qb-banking:server:GetBankData", function(source, cb)
 
         for k,v in ipairs(result) do
             if v.type == 'organisation' then
-                if (SimpleBanking.Config["business_ranks_overrides"][string.lower(Job.name)] and SimpleBanking.Config["business_ranks_overrides"][string.lower(Job.name)][string.lower(Job.grade_name)]) then
-                    current = Job
+                if Job.name == v.name then
+                    if (SimpleBanking.Config["business_ranks_overrides"][string.lower(Job.name)] and SimpleBanking.Config["business_ranks_overrides"][string.lower(Job.name)][string.lower(Job.grade_name)]) then
+                        current = Job
+                    end
                 end
             elseif v.type == 'business' then
-                if isinTable('business_mng_admin', json.decode(playerBusinesses[v.name].grade_permissions)) then
-                    current = playerBusinesses[v.name]
+                if playerBusinesses[v.name] then
+                    if isinTable('business_mng_admin', json.decode(playerBusinesses[v.name].grade_permissions)) then
+                        current = playerBusinesses[v.name]
+                    end
                 end
             elseif v.type == 'shared' then
                 if v.name == Player.identifier or isinTable(Player.identifier, json.decode(v.shared)) then
@@ -93,7 +103,7 @@ ESX.RegisterServerCallback("qb-banking:server:GetBankData", function(source, cb)
                     currentSender = Accounts[v.sender]
                     currentReceiver = Accounts[v.receiver]
                     if (senderTable and not isinTable(v.id, complete)) then -- Sender Side
-                        if currentReceiver.type == 'personal' then
+                        if currentReceiver.type == 'personal' or currentReceiver.type == 'shared' then
                             local xPlayer = ESX.GetPlayerFromIdentifier(currentReceiver.name)
                             if xPlayer ~= nil then
                                 data[k].trans_name = xPlayer.getName()
@@ -104,12 +114,12 @@ ESX.RegisterServerCallback("qb-banking:server:GetBankData", function(source, cb)
                         else
                             data[k].trans_name = ESX[pullTypes[currentReceiver.type]][currentReceiver.name].label
                         end
-                        if currentSender.type ~= 'personal' then
+                        if currentSender.type ~= 'personal' or currentReceiver.type == 'shared' then
                             data[k].account_name = " - " .. ESX[pullTypes[currentSender.type]][currentSender.name].label
                         end
                         table.insert(complete, v.id+1)
                     elseif receiverTable then -- Receiver
-                        if currentSender.type == 'personal' then
+                        if currentSender.type == 'personal' or currentReceiver.type == 'shared' then
                             local xPlayer = ESX.GetPlayerFromIdentifier(v.identifier)
                             if xPlayer ~= nil then
                                 data[k].trans_name = xPlayer.getName()
@@ -213,11 +223,55 @@ ESX.RegisterServerCallback('banking:openAccountCB', function(source, cb, closePl
                 id = Player.getIdentifier()
             })
         end
-        nearbyPlayers = {{name = 'Josh Smith', id = 'steam:110000144feb051' }}
+        -- nearbyPlayers = {{name = 'Josh Smith', id = 'steam:110000144feb051' }} -- TODO REMOVE & TEST
     end
     cb(businessAccounts, nearbyPlayers)
 end)
 
-ESX.RegisterServerCallback('banking:EditAccounts', function(source, cb, account_id)
+ESX.RegisterServerCallback('banking:manageAccess', function(source, cb, account_id, type, closePlayers)
+    local currentPlayers = {}
+    local ids = MySQL.Sync.fetchAll("SELECT shared FROM society WHERE id = @id", {['@id'] = account_id})
+    ids = json.decode(ids[1].shared)
+    for k,v in pairs(ids) do
+        Player = ESX.GetPlayerFromIdentifier(v)
+        if Player then
+            table.insert(currentPlayers, {name = Player.getName(), id = Player.getIdentifier()})
+        else
+            table.insert(currentPlayers, {name = getOfflinePlayerName(v), id = v})
+        end
+    end
 
+    local PlayersTable = {}
+    Players = ESX.GetPlayers()
+    for k,v in pairs(Players) do
+        Player = ESX.GetPlayerFromId(v)
+        if Player then
+            if not isinTable(Player.getIdentifier(), currentPlayers) then
+                table.insert(PlayersTable, {
+                    name = Player.getName(), 
+                    id = Player.getIdentifier()
+                })
+            end
+        end
+    end
+        -- PlayersTable = {{name = 'Josh Smith', id = 'steam:110000144feb051' }} -- TODO REMOVE & TEST
+    cb(currentPlayers, PlayersTable)
+end)
+
+ESX.RegisterServerCallback('banking:ChangeAccess', function(source, cb, data)
+    local sharedTable = MySQL.Sync.fetchAll("SELECT shared FROM society WHERE id = @id", {['@id'] = data.account_id})
+    sharedTable = json.decode(sharedTable[1].shared)
+    if data.type == 'add' then
+        if not isinTable(data.editName, sharedTable) then
+            table.insert(sharedTable, data.editName)
+        end
+    else
+        for k,v in pairs(sharedTable) do
+            if v == data.editName then
+                table.remove(sharedTable, k)
+                break
+            end
+        end
+    end
+    MySQL.Async.execute("UPDATE society SET shared = @shared WHERE id = @id", {['@shared'] = json.encode(sharedTable), ['@id'] = data.account_id}) -- ["steam:11000010f170a89","steam:110000144feb051"]
 end)

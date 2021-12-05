@@ -5,6 +5,9 @@ let folder_name = GetParentResourceName()
 let playerName = "";
 let secondaryOptionPlayers = "";
 let secondaryOptionBusinesses = "";
+let secondaryEditAccountsCurrent = "";
+let secondaryEditAccountsClose = "";
+let EditAccountID = -1;
 
 function UpdateAccount(divId, bal)
 {
@@ -73,7 +76,7 @@ function AddAccount(account_name, account_type, bal, ply_Name, account_id)
             <div class='row'>\
                 <div class='col'>\
                     <h5 class='card-title note'>" + account_name + (relang[account_type] === "personal" && " </i>" || "") + "\
-                    "+((relang[account_type] === "shared" || relang[account_type] === "business") && "<i OnClick='EditAccount(\"" + [account_id, relang[account_type]] + "\")' class='fa fa-cog account_settings'></i>" || "")+"</h5>\
+                    "+((relang[account_type] === "shared") && "<i OnClick='EditAccount(\"" + account_id + "\", \"" + relang[account_type] + "\")' class='fa fa-cog account_settings'></i>" || "")+"</h5>\
                 </div>\
                 <div class='col-auto'>\
                     <p class='header-title'><span class='badge bg-secondary'>Account ID:  <span class='badge bg-dark text-light'>" + account_id + "</span></span></p>\
@@ -282,12 +285,6 @@ function confirmTransfer()
     }));
 }
 
-function openNewAccount()
-{
-    // $('#CreateAccountModal').modal().show();
-    $("#CreateAccountModal").modal('toggle');
-}
-
 function fetchSecondaryOption() {
 	var x = document.getElementById("openType").value;
 	if (x === 'shared')
@@ -296,7 +293,6 @@ function fetchSecondaryOption() {
         $('#openAccountHelp').append('You require a second individual to be with you to continue!')
         $('#secondaryOption').empty()
 		$('#secondaryOption').append('<option value="">Select Option</option>')
-        // var people = ['Dexter', 'James', 'Tom']
         for (let i in secondaryOptionPlayers) {
 			$('#secondaryOption').append('<option value="' + secondaryOptionPlayers[i].id + '">' + secondaryOptionPlayers[i].name + '</option>')
 		}
@@ -307,7 +303,6 @@ function fetchSecondaryOption() {
         $('#openAccountHelp').append('You require the Bank Management Permission to continue!')
         $('#secondaryOption').empty()
 		$('#secondaryOption').append('<option value="">Select Option</option>')
-        // var businesses = ['Morrisons', 'Diamond Casino', 'Luxury Auto']
         for (let i in secondaryOptionBusinesses) {
 			$('#secondaryOption').append('<option value="' + secondaryOptionBusinesses[i].id + '">' + secondaryOptionBusinesses[i].name + '</option>')
 		}
@@ -316,11 +311,8 @@ function fetchSecondaryOption() {
 
 function confirmAccount()
 {
-
-
     let accountType = document.getElementById("openType").value;
     let secondaryOption = document.getElementById("secondaryOption").value;
-    console.log(accountType)
 
     if (!accountType || !secondaryOption)
         return;
@@ -333,8 +325,6 @@ function confirmAccount()
         type: accountType,
         secondaryOption: secondaryOption,
     }));
-
-
 }
 
 function confirmRemove(identifier, name)
@@ -348,9 +338,53 @@ function confirmRemove(identifier, name)
     }));
 }
 
-function EditAccount(data)
+function EditAccount(account_id, type)
 {
-    $.post("https://" + folder_name + "/EditAccount", JSON.stringify({data}))
+    $.post("https://" + folder_name + "/manageAccess", JSON.stringify({account_id, type}))
+}
+
+function fetchEditSecondaryOption()
+{
+    var x = document.getElementById("editType").value;
+    if (x == 'add')
+    {
+        $('#editUser').empty()
+		$('#editUser').append('<option value="">Select Option</option>')
+        for (let i in secondaryEditAccountsClose) {
+			$('#editUser').append('<option value="' + secondaryEditAccountsClose[i].id + '">' + secondaryEditAccountsClose[i].name + '</option>')
+		}
+    }
+    else
+    {
+        $('#editUser').empty()
+		$('#editUser').append('<option value="">Select Option</option>')
+        for (let i in secondaryEditAccountsCurrent) {
+			$('#editUser').append('<option value="' + secondaryEditAccountsCurrent[i].id + '">' + secondaryEditAccountsCurrent[i].name + '</option>')
+		}
+    }
+}
+
+function confirmEdit()
+{
+    let editType = document.getElementById("editType").value;
+    let editName = document.getElementById("editUser").value;
+
+    if (!editType || !editName)
+        return;
+
+    $("#ManageAccessModal").modal().hide();
+    $('.modal-backdrop').remove() // removes the grey overlay.
+    
+
+    $.post("https://" + folder_name + "/ChangeAccess", JSON.stringify({
+        type: editType,
+        editName: editName,
+        account_id: EditAccountID,
+    }), function (data) {
+        if (data === true) {
+            // TropixNotification("Test", "Success!")
+        }
+    });
 }
 
 function TropixNotification(msg, typ)
@@ -379,35 +413,15 @@ Listeners["openNewAccount"] = function(data)
 {
     secondaryOptionPlayers = data.players;
     secondaryOptionBusinesses = data.businesses;
-    openNewAccount();
+    $("#CreateAccountModal").modal('toggle');
 }
 
-Listeners["edit_account"] = function(data)
-{
-
-    if (data) {
-        let auths = JSON.parse(data.auths);
-        $("#who_has_access").html("");
-        
-        for (var i = 0; i < auths.length; i++)
-        {
-            let v = auths[i];
-
-            let curTime = new Date();
-            let newDate = new Date(v.date_added);
-        
-            let TimeSince = timeSince(newDate);
-            $("#who_has_access").append("<tr>\
-            <td>" + v.target_name + "</td>\
-            <td>" + TimeSince + "(s) ago</td>\
-            <td><button class='btn btn-danger btn-sm' onclick='confirmRemove(\"" + v.target_identifier + "\", \"" + v.target_name + "\")'>Remove</button></td>\
-            ");
-        }
-        $("#editAccountModal").modal('toggle');
-    } else {
-        TropixNotification("Nobody has access to your bank!", "error");
-        return;
-    }
+Listeners["manage_access"] = function(data)
+{       
+        $("#ManageAccessModal").modal('toggle');
+        secondaryEditAccountsCurrent = data.currentPlayers
+        secondaryEditAccountsClose =  data.Players
+        EditAccountID = data.account_id
 }
 
 Listeners["refresh_accounts"] = function() {
@@ -489,6 +503,8 @@ $(function()
                 $("#TransferModal").modal().hide();
             if ($("#CreateAccountModal").is(':visible'))
                 $("#CreateAccountModal").modal('toggle');
+            if ($("#ManageAccessModal").is(':visible'))
+                $("#ManageAccessModal").modal('toggle');
 
             $('.modal-backdrop').remove()
             ResetModals()
@@ -497,6 +513,12 @@ $(function()
     }
 
 })
+
+function CloseOverlay()
+{
+    if ($("#ManageAccessModal").is(':visible'))
+        $("#ManageAccessModal").modal('toggle');
+}
 
 function CloseUIPls()
 {
