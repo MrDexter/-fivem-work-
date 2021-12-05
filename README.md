@@ -24,6 +24,7 @@
     Close Account (Transfer remaining balance, work out how it will work with transaction logs)
     Sort Transactions (By account, money in / out, search?)
     Maybe a way to save bank info with name for easier transfers
+    Possibility to set Shared Account name?
   
 **Jobs**
 
