@@ -17,10 +17,10 @@
     Set up Paycheck support, Implement with banking system, Transaction log 
 
   
-**Banking** - Advanced banking system w/ support for Business, Personal, Organisation (Police, NHS) accounts (Shared account soon)
+**Banking** - Advanced banking system w/ support for Business, Personal, Organisation (Police, NHS) & Shared accounts
 
   Todo:
-    Shared Accounts
+    Close Account (Transfer remaining balance, work out how it will work with transaction logs)
     Sort Transactions (By account, money in / out, search?)
     Maybe a way to save bank info with name for easier transfers
   
@@ -56,7 +56,7 @@
         Police way to lock up bank
         Not a set way to break in, few different ways in code.
 
-  Vengelico - Pretty much done, go in smash a case (full animations), cases reset after x amopunt of time from last case smashed
+  Vengelico - Pretty much done, go in smash a case (full animations), cases reset after x amount of time from last case smashed
       to do:
         multi person  bug testing
     
