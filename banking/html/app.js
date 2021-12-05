@@ -56,7 +56,7 @@ relang["Government Account"] = "organisation";
 relang["Group Account"] = "gang";
 relang["Shared Account"] = "shared";
 
-function AddAccount(account_name, account_type, bal, ply_Name, account_id)
+function AddAccount(account_name, account_type, bal, ply_Name, account_id, permission)
 {
     // if (playerName == null || playerName === "")
     //     playerName = ply_Name;
@@ -76,7 +76,7 @@ function AddAccount(account_name, account_type, bal, ply_Name, account_id)
             <div class='row'>\
                 <div class='col'>\
                     <h5 class='card-title note'>" + account_name + (relang[account_type] === "personal" && " </i>" || "") + "\
-                    "+((relang[account_type] === "shared") && "<i OnClick='EditAccount(\"" + account_id + "\", \"" + relang[account_type] + "\")' class='fa fa-cog account_settings'></i>" || "")+"</h5>\
+                    "+((relang[account_type] === "shared" && permission) && "<i OnClick='EditAccount(\"" + account_id + "\", \"" + relang[account_type] + "\")' class='fa fa-cog account_settings'></i>" || "")+"</h5>\
                 </div>\
                 <div class='col-auto'>\
                     <p class='header-title'><span class='badge bg-secondary'>Account ID:  <span class='badge bg-dark text-light'>" + account_id + "</span></span></p>\
@@ -209,7 +209,7 @@ function OpenATM(data, transactions, name)
         for (var i = 0; i < tbl.length; i++)
         {
             let tTbl = tbl[i];
-            AddAccount((tTbl.type === "business" && tTbl.name || tTbl.type === "organisation" && tTbl.name || tTbl.type === "shared" && tTbl.name || "Personal Account"), (lang[tTbl.type] && lang[tTbl.type] || tTbl.type), tTbl.amount, name, tTbl.id);
+            AddAccount((tTbl.type === "business" && tTbl.name || tTbl.type === "organisation" && tTbl.name || tTbl.type === "shared" && tTbl.name || "Personal Account"), (lang[tTbl.type] && lang[tTbl.type] || tTbl.type), tTbl.amount, name, tTbl.id, tTbl.permission);
         }
     }
 

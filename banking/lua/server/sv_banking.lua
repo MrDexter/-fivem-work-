@@ -54,6 +54,7 @@ ESX.RegisterServerCallback("qb-banking:server:GetBankData", function(source, cb)
         local Job = Player.getJob()
         -- local gang = Player.getGang()
         local playerBusinesses = Player.getBusinesses()
+        local editPermission = false
 
         for k,v in ipairs(result) do
             if v.type == 'organisation' then
@@ -70,6 +71,9 @@ ESX.RegisterServerCallback("qb-banking:server:GetBankData", function(source, cb)
                 end
             elseif v.type == 'shared' then
                 if v.name == Player.identifier or isinTable(Player.identifier, json.decode(v.shared)) then
+                    if v.name == Player.identifier then
+                        editPermission = true
+                    end
                     current = {label = 'Shared Account'}
                 end
             else
@@ -80,7 +84,8 @@ ESX.RegisterServerCallback("qb-banking:server:GetBankData", function(source, cb)
                     type = v.type,
                     name = current.label,
                     amount = format_int(v.money) or 0,
-                    id = v.id
+                    id = v.id,
+                    permission = editPermission
                 }
                 table.insert(accountIDs, tostring(v.id))
             end
@@ -273,5 +278,8 @@ ESX.RegisterServerCallback('banking:ChangeAccess', function(source, cb, data)
             end
         end
     end
-    MySQL.Async.execute("UPDATE society SET shared = @shared WHERE id = @id", {['@shared'] = json.encode(sharedTable), ['@id'] = data.account_id}) -- ["steam:11000010f170a89","steam:110000144feb051"]
+    MySQL.Async.execute("UPDATE society SET shared = @shared WHERE id = @id", {
+        ['@shared'] = json.encode(sharedTable), 
+        ['@id'] = data.account_id
+    }) -- ["steam:11000010f170a89","steam:110000144feb051"]
 end)
