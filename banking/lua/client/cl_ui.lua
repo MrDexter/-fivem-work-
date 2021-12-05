@@ -138,11 +138,18 @@ RegisterNUICallback("OpenAccount", function(data, cb)
     ToggleUI()
 end)
 
-RegisterNUICallback("EditAccount", function(data, cb)
-    data = data.data
-    ESX.TriggerServerCallback("banking:EditAccounts", function(currentSharers, closePlayers)
+RegisterNUICallback("manageAccess", function(data, cb)
+    ESX.TriggerServerCallback("banking:manageAccess", function(currentSharers, PlayersTable)
+        SendNUIMessage({type = "manage_access", currentPlayers = currentSharers, Players = PlayersTable, account_id = data.account_id})
+    end, data.account_id, data.type)
+end)
 
-    end, data[1])
+RegisterNUICallback("ChangeAccess", function(data, cb)
+    print(json.encode(data))
+    ESX.TriggerServerCallback('banking:ChangeAccess', function()
+         
+    end, data)
+    cb(true)
 end)
 
 --// Net Events \\--
