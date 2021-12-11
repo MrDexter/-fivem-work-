@@ -220,7 +220,7 @@ function OpenATM(data, transactions, name)
         for (var i = 0; i < transactions.length; i++)
         {
             let tTbl = transactions[i];
-            AddTransaction(tTbl.id, tTbl.account, tTbl.amount, tTbl.date, tTbl.message, tTbl.trans_type, tTbl.trans_name || "Unknown", name, tTbl.account_name || "");
+            AddTransaction(tTbl.id, tTbl.account_type, tTbl.amount, tTbl.date, tTbl.message, tTbl.trans_type, tTbl.trans_name || "Unknown", name, tTbl.account_name || "");
         }
     }
 
@@ -446,7 +446,7 @@ Listeners["update_transactions"] = function(data)
     for (var i = 0; i < transactions.length; i++)
     {
         let tTbl = transactions[i];
-        AddTransaction(tTbl.id, tTbl.account, tTbl.amount, tTbl.date, tTbl.message, tTbl.trans_type, tTbl.trans_name || "Unknown", name, tTbl.account_name || "");
+        AddTransaction(tTbl.id, tTbl.account_type, tTbl.amount, tTbl.date, tTbl.message, tTbl.trans_type, tTbl.trans_name || "Unknown", name, tTbl.account_name || "");
     }
 }
 

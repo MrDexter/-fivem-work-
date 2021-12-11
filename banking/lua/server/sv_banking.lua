@@ -33,7 +33,6 @@ ESX.RegisterServerCallback("qb-banking:server:GetBankData", function(source, cb)
     if not src then return end
 
     local Player = ESX.GetPlayerFromId(src)
-
     if not Player then return end
 
     local playerName = Player.getName()
@@ -50,14 +49,14 @@ ESX.RegisterServerCallback("qb-banking:server:GetBankData", function(source, cb)
         id = accountNum
     }
 
-    MySQL.Async.fetchAll("SELECT * FROM society WHERE type <> 'personal'", {}, function(result)
+    local result = MySQL.Sync.fetchAll("SELECT * FROM society WHERE type <> 'personal'", {})
+
         local Job = Player.getJob()
         -- local gang = Player.getGang()
         local playerBusinesses = Player.getBusinesses()
-        local editPermission = false
-
         for k,v in ipairs(result) do
             local current = nil
+            local editPermission = false
             if v.type == 'organisation' then
                 if Job.name == v.name then
                     if (SimpleBanking.Config["business_ranks_overrides"][string.lower(Job.name)] and SimpleBanking.Config["business_ranks_overrides"][string.lower(Job.name)][string.lower(Job.grade_name)]) then
@@ -91,59 +90,17 @@ ESX.RegisterServerCallback("qb-banking:server:GetBankData", function(source, cb)
                 table.insert(accountIDs, tostring(v.id))
             end
         end
-    end)
 
 
-    -- local accountIDs = {'1', '3', '4', '5', '7', '8'}
-    MySQL.Async.fetchAll("SELECT * FROM `transaction_history` WHERE (`sender` IN(@IDs) OR `receiver` IN(@IDs)) AND DATE(date) > (NOW() - INTERVAL "..SimpleBanking.Config["Days_Transaction_History"].." DAY) ORDER BY `id` ASC;", {
+    -- local accountIDs = {"3", "5", "9", "11"}
+        print(json.encode(accountIDs))
+    MySQL.Async.fetchAll("SELECT * FROM `transaction_history` WHERE (`account` IN(@IDs)) AND DATE(date) > (NOW() - INTERVAL "..SimpleBanking.Config["Days_Transaction_History"].." DAY) ORDER BY `id` ASC;", {
         ["@IDs"] = accountIDs,
     }, function(data)
-        local complete = {}
         for k,v in pairs(data) do
             if v ~= nil then
-                if v.trans_type == 'transfer' then
-                    senderTable = isinTable(v.sender, accountIDs)
-                    receiverTable = isinTable(v.receiver, accountIDs)
-                    v.sender = tonumber(v.sender)
-                    v.receiver = tonumber(v.receiver)
-                    currentSender = Accounts[v.sender]
-                    currentReceiver = Accounts[v.receiver]
-                    if (senderTable and not isinTable(v.id, complete)) then -- Sender Side
-                        if currentReceiver.type == 'personal' or currentReceiver.type == 'shared' then
-                            local xPlayer = ESX.GetPlayerFromIdentifier(currentReceiver.name)
-                            if xPlayer ~= nil then
-                                data[k].trans_name = xPlayer.getName()
-                            else
-                                name = getOfflinePlayerName(currentReceiver.name)
-                                data[k].trans_name = name
-                            end
-                        else
-                            data[k].trans_name = ESX[pullTypes[currentReceiver.type]][currentReceiver.name].label
-                        end
-                        if currentSender.type ~= 'personal' or currentReceiver.type == 'shared' then
-                            data[k].account_name = " - " .. ESX[pullTypes[currentSender.type]][currentSender.name].label
-                        end
-                        table.insert(complete, v.id+1)
-                    elseif receiverTable then -- Receiver
-                        if currentSender.type == 'personal' or currentReceiver.type == 'shared' then
-                            local xPlayer = ESX.GetPlayerFromIdentifier(v.identifier)
-                            if xPlayer ~= nil then
-                                data[k].trans_name = xPlayer.getName()
-                            else
-                                name = getOfflinePlayerName(currentReceiver.name)
-                                data[k].trans_name = name
-                            end
-                        else
-                            data[k].trans_name = ESX[pullTypes[currentSender.type]][currentSender.name].label
-                        end
-                        if currentReceiver.type ~= 'personal' then
-                            data[k].account_name = " - " .. ESX[pullTypes[currentReceiver.type]][currentReceiver.name].label
-                        end
-                        v.id = v.id - 1
-                    end
-                else
-                    local xPlayer = ESX.GetPlayerFromIdentifier(v.identifier)
-                    data[k].trans_name = xPlayer.getName()
+                if v.trans_type == 'transfer' and v.amount > 0 then -- Hacky way of making transaction id's the same for sender and receiver.
+                    data[k].id = data[k].id - 1
                 end
             end
         end
@@ -155,26 +112,22 @@ ESX.RegisterServerCallback("qb-banking:server:GetBankData", function(source, cb)
     cb(tbl, TransactionHistory, playerName)
 end)
 
-function RefreshTransactions()
-    TriggerClientEvent("qb-banking:client:UpdateTransactions")
-end
-
 RegisterNetEvent("qb-banking:server:AddToMoneyLog")
-AddEventHandler("qb-banking:server:AddToMoneyLog", function(source, sAccount, iAmount, sType, sender, receiver, sMessage, cb)
+AddEventHandler("qb-banking:server:AddToMoneyLog", function(source, sAccount, sAccount_Type, iAmount, sType, Trans_Name, sMessage, cb)
     local src = source
     local Player = ESX.GetPlayerFromId(src)
     local CitizenId = Player.getIdentifier()
 
-        MySQL.Async.execute("INSERT INTO `transaction_history` (`identifier`, `account`, `amount`, `trans_type`, `sender`, `receiver`, `message`) VALUES(@id, @account, @amount, @type, @sender, @receiver, @message)", {
+        MySQL.Async.execute("INSERT INTO `transaction_history` (`identifier`, `account`, `account_type`, `amount`, `trans_type`, `trans_name`, `message`) VALUES(@id, @account, @account_type, @amount, @type, @trans_name, @message)", {
         ['id'] = CitizenId,
         ['account'] = sAccount,
+        ['account_type'] = sAccount_Type,
         ['amount'] = iAmount,
         ['type'] = sType,
-        ['sender'] = sender,
-        ['receiver'] = receiver,
+        ['trans_name'] = Trans_Name,
         ['message'] = sMessage
     }, function()
-        RefreshTransactions()
+        TriggerClientEvent("qb-banking:client:UpdateTransactions", src)
     end)
 end)
 

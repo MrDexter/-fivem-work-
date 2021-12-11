@@ -2,7 +2,7 @@ SimpleBanking = SimpleBanking or {}
 SimpleBanking.Config = SimpleBanking.Config or {}
 
 
-SimpleBanking.Config["Days_Transaction_History"] = 14 -- How many days should the transaction history go back in the bank?
+SimpleBanking.Config["Days_Transaction_History"] = 60 -- How many days should the transaction history go back in the bank?
 
 SimpleBanking.Config["business_ranks"] = { -- what ranks can see the society accounts in the menu, and deposit/withdraw/transfer from them?
     ["owner"] = true,

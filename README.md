@@ -25,6 +25,8 @@
     Sort Transactions (By account, money in / out, search?)
     Maybe a way to save bank info with name for easier transfers
     Possibility to set Shared Account name?
+    Bug:
+      Transfer money same account
   
 **Jobs**
 

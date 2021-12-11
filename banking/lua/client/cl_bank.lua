@@ -42,7 +42,7 @@ end)
 RegisterNetEvent('qb-banking:client:bank:openUI')
 AddEventHandler('qb-banking:client:bank:openUI', function() -- this one bank from target models
 	if not bMenuOpen then
-		-- TriggerEvent('dp:playEmote', "atm")
+		TriggerEvent('dp:playEmote', "atm")
 		ToggleUI()
 	end
 end)

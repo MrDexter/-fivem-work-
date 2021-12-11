@@ -34,7 +34,7 @@ AddEventHandler('qb-banking:server:Deposit', function(account, amount, note, fSt
             Player.removeMoney(deposit)
         end
         RefreshTransactions()
-        TriggerEvent("qb-banking:server:AddToMoneyLog", src, account.type, amount, "deposit", null, account.id, (note or ""))
+        TriggerEvent("qb-banking:server:AddToMoneyLog", src, account.id, account.type, amount, "deposit", "Deposit", (note or ""))
 end)
 
 
@@ -69,12 +69,17 @@ AddEventHandler('qb-banking:server:Withdraw', function(account, amount, note, fS
             })
             Player.addMoney(withdraw)
         end
-        TriggerEvent("qb-banking:server:AddToMoneyLog", src, account.type, -amount, "withdraw", account.id, null, (note or ""))
+        TriggerEvent("qb-banking:server:AddToMoneyLog", src, account.id, account.type, -amount, "withdraw", "Withdrawal", (note or ""))
         RefreshTransactions()
     else
         TriggerClientEvent("qb-banking:client:Notify", src, "error", "You can't afford this!") 
     end
 end)
+
+pullTypes = {
+    organisation = 'Jobs',
+    business = 'Businesses'
+}
 
 RegisterServerEvent('qb-banking:server:Transfer')
 AddEventHandler('qb-banking:server:Transfer', function(target, account, amount, note, fSteamID) -- Target = target bank id - account = leaving bank id
@@ -92,7 +97,7 @@ AddEventHandler('qb-banking:server:Transfer', function(target, account, amount, 
     if (not amount or amount <= 0) then
         return
     end
-
+--[[ 
         if checkPermission then
             if (not SimpleBanking.Config["business_ranks"][string.lower(senderInfo.grade.name)] and not SimpleBanking.Config["business_ranks_overrides"][string.lower(senderInfo.name)]) then
                 return
@@ -104,7 +109,7 @@ AddEventHandler('qb-banking:server:Transfer', function(target, account, amount, 
             if (SimpleBanking.Config["business_ranks_overrides"][low] and not SimpleBanking.Config["business_ranks_overrides"][low][grade]) then
                 return
             end
-        end
+        end ]]
 
         local sender = MySQL.Sync.fetchAll('SELECT * FROM society WHERE id= @id', {['@id'] = account})
         local receiver = MySQL.Sync.fetchAll('SELECT * FROM society WHERE id= @id', {['@id'] = target})
@@ -123,13 +128,21 @@ AddEventHandler('qb-banking:server:Transfer', function(target, account, amount, 
                     if success then
                         if sender.type == 'personal' then
                             Player.removeAccountMoney('bank', amount)
-                        elseif receiver.type == 'personal' then
+                            sender.label = Player.getName()
+                        else
+                            sender.label = ESX[pullTypes[sender.type]][sender.name].label
+                        end
+                        if receiver.type == 'personal' then
                             receiverData = ESX.GetPlayerFromIdentifier(receiver.name)
                             receiverData.addAccountMoney('bank', amount)
-                        end
-                        --                                             User   account type  money             Leaving account, going to
-                        TriggerEvent("qb-banking:server:AddToMoneyLog", src, sender.type, -amount, "transfer", sender.id, receiver.id, (note or ""))
-                        TriggerEvent("qb-banking:server:AddToMoneyLog", src, receiver.type, amount, "transfer", sender.id, receiver.id, (note or ""))
+                            receiver.label = receiverData.getName()
+                        else
+                            receiver.label = ESX[pullTypes[receiver.type]][receiver.name].label
+                        end            
+
+                        --                                             User   account      type       money             Transaction Name
+                        TriggerEvent("qb-banking:server:AddToMoneyLog", src, sender.id, sender.type, -amount, "transfer", receiver.label, (note or ""))
+                        TriggerEvent("qb-banking:server:AddToMoneyLog", src, receiver.id, receiver.type, amount, "transfer", sender.label, (note or ""))
                     end
                 end)
             else      
