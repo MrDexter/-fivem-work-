@@ -4,14 +4,14 @@ local notified = false
 local lastNotified = 0
 
 local banks = {
-	{name="Bank", id=108, x=150.266, y=-1040.203, z=29.374},
-	{name="Bank", id=108, x=-1212.980, y=-330.841, z=37.787},
-	{name="Bank", id=108, x=-2962.582, y=482.627, z=15.703},
-	{name="Bank", id=108, x=-112.202, y=6469.295, z=31.626},
-	{name="Bank", id=108, x=314.187, y=-278.621, z=54.170},
-	{name="Bank", id=108, x=-351.534, y=-49.529, z=49.042}, 
-	{name="Bank", id=106, x=241.610, y=225.120, z=106.286},
-	{name="Bank", id=108, x=1175.064, y=2706.643, z=38.094}
+	{name="Legion", coords = vec3(149.7, -1041.2, 29.6), heading = 163.0, minZ = 29.5},
+	-- {name="Bank", id=108, x=-1212.980, y=-330.841, z=37.787},
+	-- {name="Bank", id=108, x=-2962.582, y=482.627, z=15.703},
+	-- {name="Bank", id=108, x=-112.202, y=6469.295, z=31.626},
+	-- {name="Bank", id=108, x=314.187, y=-278.621, z=54.170},
+	-- {name="Bank", id=108, x=-351.534, y=-49.529, z=49.042}, 
+	-- {name="Bank", id=106, x=241.610, y=225.120, z=106.286},
+	-- {name="Bank", id=108, x=1175.064, y=2706.643, z=38.094}
 }	
 
 local atms = {'prop_atm_01', 'prop_atm_02', 'prop_fleeca_atm', 'prop_atm_03'}
@@ -42,7 +42,7 @@ end)
 RegisterNetEvent('qb-banking:client:bank:openUI')
 AddEventHandler('qb-banking:client:bank:openUI', function() -- this one bank from target models
 	if not bMenuOpen then
-		TriggerEvent('dp:playEmote', "atm")
+		TriggerEvent('dp:playEmote', "idle")
 		ToggleUI()
 	end
 end)
@@ -53,6 +53,37 @@ AddEventHandler('qb-banking:client:atm:openUI', function() -- this opens ATM
 		ToggleUI()
 	end
 end)
+
+--[[ 
+Account Management:
+Show window that displays accounts that can be managed using same Account layout as bank menu.
+Manage selected account
+Open new account
+ ]]
+
+for k,v in pairs(banks) do
+	exports['qtarget']:AddBoxZone("Bank - ".. v.name, vector3(v.coords), 0.25, 1.25, {
+		name="Bank - "..v.name,
+		heading=v.heading,
+		debugPoly=true,
+		minZ=v.minZ,
+		maxZ=v.minZ+0.5,
+		}, {
+			options = {
+				{
+					event = "qb-banking:client:bank:openUI",
+					icon = "fas fa-piggy-bank",
+					label = "Access Bank"
+				},
+				{
+					event = "banking:openAccount",
+					icon = "fas fa-user-edit",
+					label = "Account Management"
+				},
+			},
+			distance = 3.5
+	})
+end
 
 exports['qtarget']:AddTargetModel(atms, {
 	options = {

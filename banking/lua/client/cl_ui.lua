@@ -33,13 +33,8 @@ end)
 --     SendNUIMessage({type = "refresh_accounts"})
 -- end)
 
-RegisterCommand('openaccount', function()
-    TriggerEvent('openAccount')
-end)
-
-
-RegisterNetEvent('openAccount')
-AddEventHandler('openAccount', function()
+RegisterNetEvent('banking:openAccount')
+AddEventHandler('banking:openAccount', function()
     bMenuOpen = not bMenuOpen
     if not bMenuOpen then
         SetNuiFocus(false, false)
