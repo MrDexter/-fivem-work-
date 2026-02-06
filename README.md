@@ -18,7 +18,7 @@
 
   
 **Banking** - Advanced banking system w/ support for Business, Personal, Organisation (Police, NHS) & Shared accounts
-
+    UI from elsewhere
   Todo:
     Support for shop transactions, show in transaction log.
     Close Account (Transfer remaining balance)
@@ -36,13 +36,6 @@
     Bug testing
     Finish multi person support
     Setup interaction (currently commands), Use of Eye?
-    
-    
-**Roulette** - Casino Roulette
-
-  To do:
-    bug testing
-    Multi person testing
     
     
 **nocarjack** - Random idea to steal cars. point gun at driver chance they floor it or get out with hands up
@@ -67,10 +60,12 @@
   Convenience Stores - Smash a cash register to grab money out of it. Started on safe robbery (works on non 7/11 stores)
     Todo:
       Safe robbery for 7/11
-    
+
     
 **Tunershop** - Idea I had a while back allowing players to modify vehicles in a more rp orientated way
   Includes Seperate body and engine repairs, ability to remove and replace body panels, vehicle modifications
   Will need testing and fixing for use, messed around with a few different menus before.
     
   
+**NPC Quests** - 'Roof running' like quests, start job and head to given area. Steal AC items etc  
+  To Do: Multi person support, do it via group or people within vicinity of start?
